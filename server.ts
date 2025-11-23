@@ -68,7 +68,10 @@ async function createServer() {
       }
 
       // Fallback for static assets or 404
-      const filePath = path.join(__dirname, url.pathname);
+      let filePath = path.join(__dirname, url.pathname);
+      if (isProduction) {
+        filePath = path.join(__dirname, "dist/client", url.pathname);
+      }
       const fileRef = file(filePath);
       if (await fileRef.exists()) {
         return new Response(fileRef);

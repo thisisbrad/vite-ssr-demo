@@ -6,7 +6,7 @@ const app = createApp(true);
 const appElement = document.getElementById("app");
 
 if (appElement) {
-  appElement.innerHTML = app.render();
+  // appElement.innerHTML = app.render();
 
   // Hydrate to make it interactive
   app.hydrate();
