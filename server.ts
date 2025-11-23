@@ -5,7 +5,7 @@ import { createServer as createViteServer } from "vite";
 const __dirname = import.meta.dir;
 const isProduction = process.env.NODE_ENV === "production";
 
-async function createServer() {
+export async function createServer() {
   let vite;
 
   if (!isProduction) {
@@ -15,7 +15,7 @@ async function createServer() {
     });
   }
 
-  Bun.serve({
+  const server = Bun.serve({
     port: 3000,
 
     async fetch(req) {
@@ -31,7 +31,9 @@ async function createServer() {
             // Dev mode: load fresh on each request
             template = await file(path.join(__dirname, "index.html")).text();
             template = await vite.transformIndexHtml(url.pathname, template);
-            render = (await vite.ssrLoadModule("/src/entry-server.js")).render;
+            // Load the server entry. We use .ts here so Vite transforms it on the fly.
+            // This corresponds to src/entry-server.ts
+            render = (await vite.ssrLoadModule("/src/entry-server.ts")).render;
           } else {
             // Production mode: use built files
             template = await file(
@@ -82,6 +84,9 @@ async function createServer() {
   });
 
   console.log("🚀 Server running at http://localhost:3000");
+  return server;
 }
 
-createServer();
+if (import.meta.main) {
+  createServer();
+}
