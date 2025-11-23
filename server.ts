@@ -21,34 +21,60 @@ async function createServer() {
     async fetch(req) {
       const url = new URL(req.url);
 
-      try {
-        let template;
-        let render;
+      // Handle SSR for root/index
+      if (url.pathname === "/" || url.pathname === "/index.html") {
+        try {
+          let template;
+          let render;
 
-        if (!isProduction) {
-          // Dev mode: load fresh on each request
-          template = await file(path.join(__dirname, "index.html")).text();
-          template = await vite.transformIndexHtml(url.pathname, template);
-          render = (await vite.ssrLoadModule("/src/entry-server.js")).render;
-        } else {
-          // Production mode: use built files
-          template = await file(
-            path.join(__dirname, "dist/client/index.html"),
-          ).text();
-          render = (await import("./dist/server/entry-server.js")).render;
+          if (!isProduction) {
+            // Dev mode: load fresh on each request
+            template = await file(path.join(__dirname, "index.html")).text();
+            template = await vite.transformIndexHtml(url.pathname, template);
+            render = (await vite.ssrLoadModule("/src/entry-server.js")).render;
+          } else {
+            // Production mode: use built files
+            template = await file(
+              path.join(__dirname, "dist/client/index.html"),
+            ).text();
+            render = (await import("./dist/server/entry-server.js")).render;
+          }
+
+          const { html: appHtml } = render(url.pathname);
+          const html = template.replace("<!--app-html-->", appHtml);
+
+          return new Response(html, {
+            headers: { "Content-Type": "text/html" },
+          });
+        } catch (e) {
+          !isProduction && vite?.ssrFixStacktrace(e);
+          console.error(e.stack);
+          return new Response(e.stack, { status: 500 });
         }
-
-        const { html: appHtml } = render(url.pathname);
-        const html = template.replace("<!--app-html-->", appHtml);
-
-        return new Response(html, {
-          headers: { "Content-Type": "text/html" },
-        });
-      } catch (e) {
-        !isProduction && vite?.ssrFixStacktrace(e);
-        console.error(e.stack);
-        return new Response(e.stack, { status: 500 });
       }
+
+      // Handle assets in dev mode
+      if (!isProduction) {
+        try {
+          const result = await vite.transformRequest(url.pathname);
+          if (result) {
+            return new Response(result.code, {
+              headers: { "Content-Type": "application/javascript" },
+            });
+          }
+        } catch (e) {
+          console.error(`Failed to transform ${url.pathname}:`, e);
+        }
+      }
+
+      // Fallback for static assets or 404
+      const filePath = path.join(__dirname, url.pathname);
+      const fileRef = file(filePath);
+      if (await fileRef.exists()) {
+        return new Response(fileRef);
+      }
+
+      return new Response("Not Found", { status: 404 });
     },
   });
 
