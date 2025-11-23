@@ -9,11 +9,21 @@ bun install
 To run:
 
 ```bash
-bun run index.ts
+bun run dev
 ```
 
-This project was created using `bun init` in bun v1.3.0. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+To build to JS:
 
+```bash
+bun run build
+```
+To preview with Vite:
+
+```bash
+bun run build
+```
+
+```
 my-ssr-test/
 ├── index.html
 ├── package.json
@@ -23,3 +33,4 @@ my-ssr-test/
     ├── App.js
     ├── entry-client.js
     └── entry-server.js
+```
