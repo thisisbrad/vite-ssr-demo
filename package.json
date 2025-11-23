@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "bun run server.ts",
     "build": "bun run build:client && bun run build:server",
-    "build:client": "bunx vite build --outDir dist/client",
+    "build:client": "bunx vite build --outDir dist/client --ssrManifest",
     "build:server": "bunx vite build --ssr src/entry-server.js --outDir dist/server",
     "preview": "NODE_ENV=production bun run server.ts"
   },
