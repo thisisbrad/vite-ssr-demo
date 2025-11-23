@@ -1,0 +1,16 @@
+{
+  "name": "vite-ssr-test",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run server.js",
+    "build": "bun run build:client && bun run build:server",
+    "build:client": "bunx vite build --outDir dist/client",
+    "build:server": "bunx vite build --ssr src/entry-server.js --outDir dist/server",
+    "preview": "NODE_ENV=production bun run server.js",
+    "vite": "bunx vite"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vite": "^7.2.4"
+  }
+}
