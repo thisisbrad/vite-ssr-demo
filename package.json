@@ -6,8 +6,7 @@
     "build": "bun run build:client && bun run build:server",
     "build:client": "bunx vite build --outDir dist/client",
     "build:server": "bunx vite build --ssr src/entry-server.js --outDir dist/server",
-    "preview": "NODE_ENV=production bun run server.ts",
-    "vite": "bunx vite"
+    "preview": "NODE_ENV=production bun run server.ts"
   },
   "dependencies": {},
   "devDependencies": {
